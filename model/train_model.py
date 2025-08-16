@@ -139,7 +139,10 @@ def entrenar_modelos(X, y):
 # =========================
 # 6. Guardar y cargar modelos
 # =========================
-def guardar_modelos(modelos, carpeta="./model/modelos_precio_final_subasta"):
+import os
+import joblib
+
+def guardar_modelos(modelos, carpeta=r"C:\Users\jeane_bkpplgv\OneDrive\Documents\GitHub\Tareas_desarrollo_proyectos\modelo"):
     """
     Guarda los modelos entrenados en archivos .joblib dentro de la carpeta indicada.
     """
@@ -150,7 +153,7 @@ def guardar_modelos(modelos, carpeta="./model/modelos_precio_final_subasta"):
         print(f"✅ Modelo {nombre} guardado en {ruta}")
 
 
-def cargar_modelo(nombre, carpeta="./model/modelos_precio_final_subasta"):
+def cargar_modelo(nombre, carpeta=r"C:\Users\jeane_bkpplgv\OneDrive\Documents\GitHub\Tareas_desarrollo_proyectos\modelo"):
     """
     Carga un modelo previamente guardado.
     """

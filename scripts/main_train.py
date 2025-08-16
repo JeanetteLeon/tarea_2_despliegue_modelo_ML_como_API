@@ -20,5 +20,7 @@ modelos, X_train, X_test, y_train, y_test = entrenar_modelos(X, y)
 guardar_modelos(modelos)
 
 # (Opcional) cargar un modelo puntual para probar
-# rf_model = cargar_modelo("RF")
-# print(rf_model.predict(X_test[:5]))
+rf_model = cargar_modelo("RF")
+print(rf_model.predict(X_test[:5]))
+
+
