@@ -1,0 +1,12 @@
+﻿# Python / venv / VSCode
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.DS_Store
+.vscode/
+*.log
+
+# SO/OneDrive temporales
+Thumbs.db
+desktop.ini
