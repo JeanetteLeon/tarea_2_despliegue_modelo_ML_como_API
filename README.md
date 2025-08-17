@@ -192,9 +192,9 @@ http://127.0.0.1:8000/docs
 ##  Cliente de prueba
 
 En este repositorio hay un **`client.ipynb`** (Jupyter Notebook) con ejemplos de:
-- 1 consulta a `/health`
-- 2 consultas distintas a `/predict`
-- 1 consulta a `/simulate`
+- Consulta a `/health`
+- Consultas distintas a `/predict`
+- Consulta a `/simulate`
 
 Esto demuestra cómo enviar datos y cómo interpretar las respuestas.
 
