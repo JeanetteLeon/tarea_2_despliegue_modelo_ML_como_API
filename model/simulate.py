@@ -1,6 +1,5 @@
 # model/simulate.py
 from __future__ import annotations
-
 from typing import Dict, Tuple
 import random
 import numpy as np
@@ -34,7 +33,7 @@ def transformar_entrada(subasta_dict: Dict) -> pd.DataFrame:
     for p in ["palm", "xbox", "cartier"]:
         row[f"producto_{p}"] = 1 if subasta_dict.get("producto") == p else 0
 
-    # dummies de tipo_subasta (tu dataset tiene 3, 5 y 7; en el modelo se usan 5 y 7)
+    # dummies de tipo_subasta (modelo usa 5 y 7)
     for t in [5, 7]:
         row[f"tipo_subasta_{t}"] = 1 if subasta_dict.get("tipo_subasta") == t else 0
 
@@ -51,10 +50,10 @@ def transformar_entrada(subasta_dict: Dict) -> pd.DataFrame:
 
 def predecir_todos(modelos: Dict[str, object], subasta: Dict) -> Dict[str, float]:
     """
-    Devuelve las predicciones crudas (sin lógica de puja) de cada modelo.
+    Devuelve las predicciones crudas (no-negativas) de cada modelo.
     """
     Xrow = transformar_entrada(subasta)
-    preds = {nombre: float(m.predict(Xrow)[0]) for nombre, m in modelos.items()}
+    preds = {nombre: max(0.0, float(m.predict(Xrow)[0])) for nombre, m in modelos.items()}
     return preds
 
 
@@ -85,12 +84,12 @@ def simular_subasta(
 
     # loop de simulaciones
     for _ in range(juegos):
-        # predicciones base
-        pred_rf = float(modelos["RF"].predict(Xrow)[0])
-        pred_gb = float(modelos["GB"].predict(Xrow)[0])
-        pred_lr = float(modelos["LR"].predict(Xrow)[0])
+        # predicciones base (cap a >= 0)
+        pred_rf = max(0.0, float(modelos["RF"].predict(Xrow)[0]))
+        pred_gb = max(0.0, float(modelos["GB"].predict(Xrow)[0]))
+        pred_lr = max(0.0, float(modelos["LR"].predict(Xrow)[0]))
 
-        # regla de oferta (misma que vienes usando): pred + 10 + 0.1*reputacion_prom, con tope
+        # regla de oferta: pred + 10 + 0.1*reputacion_prom (con tope)
         def oferta(p: float) -> int:
             return min(int(round(p + 10 + subasta["reputacion_prom"] * 0.1)), tope)
 
@@ -100,10 +99,10 @@ def simular_subasta(
             "LR": oferta(pred_lr),
         }
 
-        # valoraciones privadas de cada jugador en esta ronda
+        # valoraciones privadas
         val_priv = {k: rng.randint(valor_min, valor_max) for k in ofertas}
 
-        # oferta efectiva capada por valoración privada
+        # oferta efectiva (cap por valoración)
         ofertas_ef = {k: min(ofertas[k], val_priv[k]) for k in ofertas}
 
         # subasta de segundo precio

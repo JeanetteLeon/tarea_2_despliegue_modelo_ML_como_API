@@ -6,12 +6,10 @@ import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from model.train_model import cargar_modelo
-from model.simulate import transformar_entrada, simular_subasta
+from model.simulate import transformar_entrada, simular_subasta, predecir_todos
 
 # ---------- Config ----------
-import os
 MODELS_DIR = os.getenv("MODELS_DIR", "model/artifacts")
-
 
 # Cols en el mismo orden del entrenamiento
 FEATURES_FINALES = [
@@ -60,6 +58,11 @@ class SimulatePayload(PredictPayload):
     tope: conint(ge=1) = 100
     seed: int | None = 123
 
+class SimulateResponse(BaseModel):
+    resultados: Dict[str, int]
+    ganador_global: Literal["RF", "GB", "LR"]
+    detalle_ultimo_juego: Dict
+
 # ---------- Endpoints ----------
 @app.get("/health")
 def health():
@@ -67,20 +70,16 @@ def health():
 
 @app.post("/predict", response_model=PredictResponse)
 def predict(payload: PredictPayload):
-    xrow = transformar_entrada(payload.dict())
-    xrow = xrow.reindex(columns=FEATURES_FINALES, fill_value=0)
-    preds = {
-        "RF": float(MODELOS["RF"].predict(xrow)[0]),
-        "GB": float(MODELOS["GB"].predict(xrow)[0]),
-        "LR": float(MODELOS["LR"].predict(xrow)[0]),
-    }
+    # Clip a >= 0 y devolver tres modelos
+    preds = predecir_todos(MODELOS, payload.dict())
+    # (opcional) redondeo suave
+    preds = {k: float(round(v, 4)) for k, v in preds.items()}
     return {"predicciones": preds}
 
-@app.post("/simulate")
+@app.post("/simulate", response_model=SimulateResponse)
 def simulate(payload: SimulatePayload):
-    modelos = {"RF": MODELOS["RF"], "GB": MODELOS["GB"], "LR": MODELOS["LR"]}
-    res, detalle = simular_subasta(
-        modelos=modelos,
+    resultados, detalle = simular_subasta(
+        modelos=MODELOS,
         subasta=payload.dict(),
         juegos=payload.juegos,
         valor_min=payload.valor_min,
@@ -89,10 +88,14 @@ def simulate(payload: SimulatePayload):
         tope=payload.tope,
         seed=payload.seed,
     )
-    return {"resultados": res, "detalle_ultimo_juego": detalle}
+    # ganador global (modelo con más victorias)
+    ganador_global = max(resultados.items(), key=lambda kv: kv[1])[0]
+    return {
+        "resultados": resultados,
+        "ganador_global": ganador_global,
+        "detalle_ultimo_juego": detalle,
+    }
 
-# Nota: NO pongas prints ni simulaciones aquí.
-# Si quieres probar manualmente este archivo directamente, usa:
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("scripts.main:app", host="127.0.0.1", port=8000, reload=True)
