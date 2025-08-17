@@ -38,6 +38,7 @@ La API está desplegada en **Render** y es accesible públicamente:
 - **Ruta:** `/predict`  
 - **Método:** `POST`  
 - **Descripción:** Devuelve el precio estimado de la subasta según 3 modelos (Random Forest, Gradient Boosting y Regresión Lineal).
+- Se seleccionar el boton "Try it out" para editar los valores, en página del despliegue del modelo.
 
 
 
@@ -83,6 +84,7 @@ La API está desplegada en **Render** y es accesible públicamente:
 - **Ruta:** `/simulate`  
 - **Método:** `POST`  
 - **Descripción:** Ejecuta varias simulaciones de subastas y devuelve cuántas ganó cada modelo.
+- Se seleccionar el boton "Try it out" para editar los valores, en página del despliegue del modelo.
 
 #### JSON de entrada esperado:
 Incluye los mismos campos que `/predict` **más** parámetros de simulación:
