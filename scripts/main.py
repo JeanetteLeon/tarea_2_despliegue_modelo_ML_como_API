@@ -9,7 +9,9 @@ from model.train_model import cargar_modelo
 from model.simulate import transformar_entrada, simular_subasta
 
 # ---------- Config ----------
-MODELS_DIR = r"C:\Users\jeane_bkpplgv\OneDrive\Documents\GitHub\Tareas_desarrollo_proyectos\modelo"
+import os
+MODELS_DIR = os.getenv("MODELS_DIR", "model/artifacts")
+
 
 # Cols en el mismo orden del entrenamiento
 FEATURES_FINALES = [

@@ -1,3 +1,4 @@
+python-3.12.3
 annotated-types==0.7.0
 anyio==4.10.0
 click==8.2.1
@@ -22,3 +23,5 @@ typing-inspection==0.4.1
 typing_extensions==4.14.1
 tzdata==2025.2
 uvicorn==0.35.0
+
+
